@@ -1,0 +1,19 @@
+# GitHub
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.iws
+*.iml
+*.ipr
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+*.env
