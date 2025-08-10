@@ -1,0 +1,17 @@
+{
+  "name": "skulls-hateoas-frontend",
+  "version": "1.0.0",
+  "description": "Dynamic HATEOAS frontend with AI enhancement capabilities",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "dotenv": "^17.2.1"
+  },
+  "keywords": ["hateoas", "hypermedia", "ai", "frontend"],
+  "author": "",
+  "license": "MIT"
+}
