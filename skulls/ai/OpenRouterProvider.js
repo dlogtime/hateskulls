@@ -28,11 +28,39 @@ class OpenRouterProvider extends AIProvider {
                 DO NOT use any external libraries or frameworks.
                 DO NOT include any scripts.
                 ONLY GENERATE PURE HTML WITH INLINE CSS.
-                BE CREATIVE AND HAVE FUN with your CSS styling - use animations, gradients, shadows, interesting layouts!
-                ENSURE THE HTML IS BEAUTIFUL AND USABLE;
                 DO NOT GENERATE PLACEHOLDER TEXT OR ELEMENTS.
                 IF AN ELEMENT IS INTERACTABLE IT NEEDS TO DO SOMETHING.
-                ALWAYS use "window.app.followLink(url)" for navigation.
+                Forms and other elements may be made to appear dynamically where they make sense (e.g. modals, expanding boxes, other common CSS tricks). Use your creativity!
+                BUT ONCLICK EVENTS MUST NOT CALL FUNCTIONS. THEY CAN ONLY CHANGE THE DISPLAY STYLE OF ELEMENTS OR NAVIGATE.
+
+                NAVIGATION: Always use "window.app.followLink(url)" for GET navigation.
+
+                HAL-FORMS HANDLING:
+                - Look for "_templates" in the HATEOAS response for form specifications
+                - If it doesn't exist, try to find a similar field that makes sense, but if that doesn't exist either, 
+                  then show a warning that the backend is not properly implemented and DO NOT generate the form.
+                - Generate HTML forms based on the template properties (field names, types, validation)
+                - For form submissions, collect form data and use:
+                  window.app.followLink(template.target, { 
+                    method: template.method, 
+                    data: { field1: value1, field2: value2 } 
+                  })
+                - Form buttons should gather all form field values and submit them
+                - Use template validation rules (required, min, max, regex) for client-side validation
+                - Make forms beautiful with proper styling, animations, and UX feedback
+
+                EXAMPLE FORM SUBMIT BUTTON:
+                onclick="
+                  const formData = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    requestedBy: document.getElementById('requestedBy').value
+                  };
+                  window.app.followLink('http://localhost:8080/change-requests', {
+                    method: 'POST',
+                    data: formData
+                  });
+                "
               `
             },
             {

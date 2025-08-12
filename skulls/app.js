@@ -23,13 +23,13 @@ class SkullsApp {
     window.addEventListener('popstate', (event) => {
       if (event.state?.href) {
         // Don't update history when responding to history change
-        this.followLink(event.state.href, false);
+        this.followLink(event.state.href, { updateHistory: false });
       } else {
         // Handle initial page load or manual URL entry
         const currentPath = window.location.pathname + window.location.search;
         if (currentPath !== '/') {
           const fullUrl = `${this.backendUrl}${currentPath}`;
-          this.followLink(fullUrl, false);
+          this.followLink(fullUrl, { updateHistory: false });
         }
       }
     });
@@ -74,11 +74,35 @@ class SkullsApp {
     }
   }
   
-  async followLink(href, updateHistory = true) {
-    console.log('Following link:', href);
+  async followLink(href, options = {}) {
+    console.log('Following link:', href, options);
     
     try {
-      const response = await fetch(href);
+      // Default to GET request
+      const fetchOptions = {
+        method: options.method || 'GET',
+        headers: {
+          'Accept': 'application/prs.hal-forms+json,application/hal+json,application/json'
+        }
+      };
+      
+      // Add body for POST/PUT requests
+      if (options.data && (options.method === 'POST' || options.method === 'PUT')) {
+        fetchOptions.headers['Content-Type'] = 'application/json';
+        fetchOptions.body = JSON.stringify(options.data);
+      }
+      
+      const response = await fetch(href, fetchOptions);
+      
+      // Handle different response types
+      if (options.method === 'DELETE') {
+        if (response.status === 204) {
+          // Successful deletion - refresh the current view
+          await this.init();
+          return;
+        }
+      }
+      
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -88,9 +112,8 @@ class SkullsApp {
       
       await this.generateUI(data);
       
-      // Update browser history so back/forward buttons work
-      if (updateHistory) {
-        // Extract just the path for the URL bar to avoid cross-origin issues
+      // Update browser history for GET requests or successful operations
+      if (options.updateHistory !== false && (options.method === 'GET' || !options.method)) {
         const url = new URL(href);
         const displayPath = url.pathname + url.search;
         window.history.pushState({ href }, '', displayPath);

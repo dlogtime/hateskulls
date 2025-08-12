@@ -1,6 +1,8 @@
 package com.hateskulls.hate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -9,24 +11,33 @@ public class ChangeRequest {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore // Don't include in HAL-FORMS templates
     private Long id;
     
     @Column(nullable = false)
+    @NotBlank(message = "Title is required")
+    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
     
     @Column(length = 1000)
+    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
     private String description;
     
     @Enumerated(EnumType.STRING)
+    @JsonIgnore // Don't include in HAL-FORMS create templates (auto-set to PENDING)
     private Status status = Status.PENDING;
     
     @Column(name = "requested_by", nullable = false)
+    @NotBlank(message = "Requested by is required")
+    @Size(min = 2, max = 50, message = "Requested by must be between 2 and 50 characters")
     private String requestedBy;
     
     @Column(name = "created_at", nullable = false)
+    @JsonIgnore // Don't include in HAL-FORMS templates
     private LocalDateTime createdAt = LocalDateTime.now();
     
     @Column(name = "updated_at")
+    @JsonIgnore // Don't include in HAL-FORMS templates
     private LocalDateTime updatedAt;
     
     // Default constructor

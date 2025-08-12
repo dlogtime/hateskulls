@@ -11,12 +11,17 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.hateoas.Affordance;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.afford;
 
 @RestController
 @RequestMapping("/change-requests")
@@ -55,9 +60,11 @@ public class ChangeRequestController {
         pagedModel.add(linkTo(methodOn(ChangeRequestController.class)
             .getAllChangeRequests(page, size, sortBy, sortDir, status)).withSelfRel());
         
-        // Add CREATE link - this is what was missing!
+        // Add CREATE affordance with form template - this is the key HAL-FORMS feature!
+        Affordance createAffordance = afford(methodOn(ChangeRequestController.class)
+            .createChangeRequest(null));
         pagedModel.add(linkTo(ChangeRequestController.class).withRel("create")
-            .withType("application/json"));
+            .andAffordance(createAffordance));
         
         // Add search/filter links for available statuses
         pagedModel.add(linkTo(methodOn(ChangeRequestController.class)
@@ -87,7 +94,7 @@ public class ChangeRequestController {
     
     // POST /change-requests
     @PostMapping
-    public EntityModel<ChangeRequest> createChangeRequest(@RequestBody ChangeRequest changeRequest) {
+    public EntityModel<ChangeRequest> createChangeRequest(@Valid @RequestBody ChangeRequest changeRequest) {
         ChangeRequest saved = repository.save(changeRequest);
         return toEntityModel(saved);
     }
@@ -95,7 +102,7 @@ public class ChangeRequestController {
     // PUT /change-requests/{id}
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<ChangeRequest>> updateChangeRequest(
-            @PathVariable Long id, @RequestBody ChangeRequest changeRequest) {
+            @PathVariable Long id, @Valid @RequestBody ChangeRequest changeRequest) {
         
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -117,16 +124,24 @@ public class ChangeRequestController {
         return ResponseEntity.noContent().build();
     }
     
-    // Helper method to add HATEOAS links
+    // Helper method to add HATEOAS links with HAL-FORMS affordances
     private EntityModel<ChangeRequest> toEntityModel(ChangeRequest changeRequest) {
+        // Create affordances for forms
+        Affordance updateAffordance = afford(methodOn(ChangeRequestController.class)
+            .updateChangeRequest(changeRequest.getId(), null));
+        Affordance deleteAffordance = afford(methodOn(ChangeRequestController.class)
+            .deleteChangeRequest(changeRequest.getId()));
+        
         return EntityModel.of(changeRequest)
             .add(linkTo(methodOn(ChangeRequestController.class)
                 .getChangeRequest(changeRequest.getId())).withSelfRel())
             .add(linkTo(methodOn(ChangeRequestController.class)
                 .getAllChangeRequests(0, 10, "id", "desc", null)).withRel("all-change-requests"))
             .add(linkTo(methodOn(ChangeRequestController.class)
-                .updateChangeRequest(changeRequest.getId(), null)).withRel("update"))
+                .updateChangeRequest(changeRequest.getId(), null)).withRel("update")
+                .andAffordance(updateAffordance))
             .add(linkTo(methodOn(ChangeRequestController.class)
-                .deleteChangeRequest(changeRequest.getId())).withRel("delete"));
+                .deleteChangeRequest(changeRequest.getId())).withRel("delete")
+                .andAffordance(deleteAffordance));
     }
 }
