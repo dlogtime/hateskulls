@@ -1,8 +1,9 @@
 # HateSkulls - AI-generated Frontends
 
-Just exploring the idea that if webservers follow standardised patterns -- e.g. HATEOAS + HAL-FORMS in this case -- then AI can generate functional UIs without custom frontend development. of AI-generated frontends/browsers.
+Just exploring the idea that if webservers follow standardised patterns -- e.g. HATEOAS + HAL-FORMS in this case -- then AI can generate functional UIs without custom frontend development.
 
-`hate/`: Spring Boot HATEOAS implementation.
+`hate/`: Spring Boot HATEOAS implementation. Simple CRUD example of a Change Request ticketing system.
+
 `skulls/`: Node.js server that calls AI to generate HTML. Should work with any HATEOAS compliant backend in theory.
 
 ## Etymology
@@ -22,7 +23,7 @@ Not much more to it than this word association. Great game btw.
 
 ### Configuration
 
-Copy `skulls/.env.example` to `skulls.env` and update with your OpenRouter API key:
+Copy `skulls/.env.example` to `skulls/.env` and update with your OpenRouter API key:
 ```
 OPENROUTER_API_KEY=your-key-here
 ```
