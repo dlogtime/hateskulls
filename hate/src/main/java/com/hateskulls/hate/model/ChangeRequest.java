@@ -11,7 +11,6 @@ public class ChangeRequest {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore // Don't include in HAL-FORMS templates
     private Long id;
     
     @Column(nullable = false)
@@ -24,7 +23,6 @@ public class ChangeRequest {
     private String description;
     
     @Enumerated(EnumType.STRING)
-    @JsonIgnore // Don't include in HAL-FORMS create templates (auto-set to PENDING)
     private Status status = Status.PENDING;
     
     @Column(name = "requested_by", nullable = false)
